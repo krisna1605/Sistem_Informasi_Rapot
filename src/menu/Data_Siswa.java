@@ -4,7 +4,6 @@ import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -21,44 +20,59 @@ import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.view.JasperViewer;
+import koneksi.koneksi;
 
 /**
  *
  * @author KrisnaArisandi
  */
-
 public class Data_Siswa extends javax.swing.JFrame {
 
-    private Connection con;
+    private final Connection con = new koneksi().connect();
     private Statement stat;
-    private ResultSet res;
     private DefaultTableModel tabmode;
-    private SimpleDateFormat smpdtfmt;
+    private final SimpleDateFormat smpdtfmt;
     public Informasi_Rapot sp = null;
+    Locale locale = new Locale("id", "ID");
 
     public Data_Siswa() {
+        Locale.setDefault(locale);
         initComponents();
         Image icon = Toolkit.getDefaultToolkit().getImage("src/Gambar/pic/logo.png");
         setIconImage(icon);
-        tanggal();
-        koneksi();
         tabel_siswa();
         jComboBox1.setSelectedItem(null);
-    }
-
-    private void koneksi() {
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-            con = DriverManager.getConnection("jdbc:mysql://127.0.0.1/db_sistem_rapot", "root", "");
-            stat = con.createStatement();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e);
-        }
-    }
-
-    private void tanggal() {
-        java.util.Date tglsekarang = new java.util.Date();
         smpdtfmt = new SimpleDateFormat("dd MMMM yyyy", Locale.getDefault());
+    }
+
+    private void table_setter() {
+        try {
+            int bar = tabel_siswa.getSelectedRow();
+            String a = tabmode.getValueAt(bar, 0).toString();
+            String b = tabmode.getValueAt(bar, 1).toString();
+            String c = tabmode.getValueAt(bar, 2).toString();
+            String d = tabmode.getValueAt(bar, 3).toString();
+            String e = tabmode.getValueAt(bar, 4).toString();
+            String f = tabmode.getValueAt(bar, 5).toString();
+            Date x = smpdtfmt.parse(f);
+            String g = tabmode.getValueAt(bar, 6).toString();
+            Date x2 = smpdtfmt.parse(g);
+            String h = tabmode.getValueAt(bar, 7).toString();
+            nig.setText(a);
+            nama.setText(b);
+            if ("Laki-Laki".equals(c)) {
+                lki.setSelected(true);
+            } else if ("Perempuan".equals(c)) {
+                pr.setSelected(true);
+            }
+            jComboBox1.setSelectedItem(d);
+            tmptlh.setText(e);
+            tgllh.setDate(x);
+            tglp.setDate(x2);
+            Txa_almt.setText(h);
+        } catch (ParseException ex) {
+            Logger.getLogger(Data_Siswa.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     private void tabel_siswa() {
@@ -153,15 +167,6 @@ public class Data_Siswa extends javax.swing.JFrame {
             }
         ));
         tabel_siswa.setGridColor(new java.awt.Color(153, 153, 153));
-        tabel_siswa.addAncestorListener(new javax.swing.event.AncestorListener() {
-            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
-            }
-            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
-                tabel_siswaAncestorAdded(evt);
-            }
-            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
-            }
-        });
         tabel_siswa.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 tabel_siswaMouseClicked(evt);
@@ -313,7 +318,7 @@ public class Data_Siswa extends javax.swing.JFrame {
 
         jLabel6.setText("NAMA SISWA");
 
-        nama.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        nama.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
 
         jLabel7.setText("JENIS KELAMIN");
 
@@ -347,17 +352,17 @@ public class Data_Siswa extends javax.swing.JFrame {
         jLabel12.setText("TANGGAL LAHIR");
 
         tgllh.setDateFormatString("dd MMMM yyyy");
-        tgllh.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        tgllh.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
 
         tglp.setDateFormatString("dd MMMM yyyy");
-        tglp.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        tglp.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
 
         jLabel10.setText("AGAMA");
 
-        jComboBox1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jComboBox1.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Islam", "Kristen", "Budha", "Hindu", "Lain-Lain" }));
 
-        tmptlh.setFont(new java.awt.Font("Times New Roman", 1, 12)); // NOI18N
+        tmptlh.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
 
         jButton3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Gambar/icon/icons8_Delete_User_Male_50px.png"))); // NOI18N
         jButton3.setText("HAPUS");
@@ -381,32 +386,33 @@ public class Data_Siswa extends javax.swing.JFrame {
                             .add(jLabel11)
                             .add(jLabel8)
                             .add(jLabel10))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 91, Short.MAX_VALUE)
                         .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(tglp, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 160, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(jScrollPane3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(jComboBox1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 143, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                                .add(org.jdesktop.layout.GroupLayout.LEADING, tglp, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .add(jPanel4Layout.createSequentialGroup()
+                                    .add(lki)
+                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                                    .add(pr)))
                             .add(jPanel4Layout.createSequentialGroup()
                                 .add(tmptlh, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 145, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(15, 15, 15)
                                 .add(jLabel12)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(tgllh, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                        .add(726, 726, 726))
+                                .add(18, 18, 18)
+                                .add(tgllh, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 152, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                        .add(699, 699, 699))
                     .add(jPanel4Layout.createSequentialGroup()
                         .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(jLabel3)
                             .add(jLabel6)
                             .add(jLabel7))
-                        .add(76, 76, 76)
+                        .add(131, 131, 131)
                         .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(nig, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 170, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jPanel4Layout.createSequentialGroup()
-                                .add(lki)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                                .add(pr))
-                            .add(nama, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 220, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap(930, Short.MAX_VALUE))))
+                            .add(nama, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 220, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(nig, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 170, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(0, 0, Short.MAX_VALUE))))
             .add(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
                 .add(jButton2)
@@ -430,41 +436,45 @@ public class Data_Siswa extends javax.swing.JFrame {
                             .add(jButton2)
                             .add(jButton3))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)))
-                .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                .add(jSeparator2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(18, 18, 18)
+                .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(nig, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel3))
+                .add(18, 18, 18)
+                .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel6)
+                    .add(nama, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jPanel4Layout.createSequentialGroup()
-                        .add(jSeparator2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(18, 18, 18)
+                        .add(24, 24, 24)
+                        .add(jLabel7)
+                        .add(32, 32, 32))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel4Layout.createSequentialGroup()
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(nig, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jLabel3))
-                        .add(18, 18, 18)
-                        .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(jLabel6)
-                            .add(nama, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .add(20, 20, 20)
-                        .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(jLabel7)
                             .add(lki)
                             .add(pr))
-                        .add(27, 27, 27)
+                        .add(18, 18, 18)))
+                .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel4Layout.createSequentialGroup()
                         .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(jComboBox1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(jLabel10))
                         .add(18, 18, 18)
-                        .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                            .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                                .add(tmptlh, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .add(jLabel12)
-                                .add(jLabel8))
+                        .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(tmptlh, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(jLabel12)
+                            .add(jLabel8)
                             .add(tgllh, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .add(18, 18, 18)
                         .add(jLabel9))
-                    .add(tglp, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, tglp, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .add(18, 18, 18)
                 .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel11)
                     .add(jScrollPane3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 128, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(77, Short.MAX_VALUE))
+                .addContainerGap(76, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("INFORMASI SISWA", jPanel4);
@@ -490,33 +500,7 @@ public class Data_Siswa extends javax.swing.JFrame {
 
 
     private void tabel_siswaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabel_siswaMouseClicked
-        try {
-            int bar = tabel_siswa.getSelectedRow();
-            String a = tabmode.getValueAt(bar, 0).toString();
-            String b = tabmode.getValueAt(bar, 1).toString();
-            String c = tabmode.getValueAt(bar, 2).toString();
-            String d = tabmode.getValueAt(bar, 3).toString();
-            String e = tabmode.getValueAt(bar, 4).toString();
-            String f = tabmode.getValueAt(bar, 5).toString();
-            Date x = new SimpleDateFormat("dd MMMM yyyy").parse(f);
-            String g = tabmode.getValueAt(bar, 6).toString();
-            Date x2 = new SimpleDateFormat("dd MMMM yyyy").parse(g);
-            String h = tabmode.getValueAt(bar, 7).toString();
-            nig.setText(a);
-            nama.setText(b);
-            if ("Laki-Laki".equals(c)) {
-                lki.setSelected(true);
-            } else if ("Perempuan".equals(c)) {
-                pr.setSelected(true);
-            }
-            jComboBox1.setSelectedItem(d);
-            tmptlh.setText(e);
-            tgllh.setDate(x);
-            tglp.setDate(x2);
-            Txa_almt.setText(h);
-        } catch (ParseException ex) {
-            Logger.getLogger(Data_Siswa.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        table_setter();
     }//GEN-LAST:event_tabel_siswaMouseClicked
 
     private void jLabel4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MouseClicked
@@ -540,10 +524,6 @@ public class Data_Siswa extends javax.swing.JFrame {
         new Data_Siswa().setVisible(true);
         dispose();
     }//GEN-LAST:event_jLabel1MouseClicked
-
-    private void tabel_siswaAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_tabel_siswaAncestorAdded
-        // TODO add your handling code here:
-    }//GEN-LAST:event_tabel_siswaAncestorAdded
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         String jenis = (null);
@@ -569,6 +549,7 @@ public class Data_Siswa extends javax.swing.JFrame {
         }
         new Data_Siswa().setVisible(true);
         dispose();
+        System.out.println("Berhasil Ubah Data");
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void tabel_siswaKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tabel_siswaKeyPressed
@@ -628,7 +609,7 @@ public class Data_Siswa extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-       try {
+        try {
 
             HashMap parameter = new HashMap();
             String path2 = "./src/report/report_data_nilai.jasper";
@@ -656,7 +637,7 @@ public class Data_Siswa extends javax.swing.JFrame {
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Metal".equals(info.getName())) {
+                if ("Windows".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
